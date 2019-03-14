@@ -8,11 +8,12 @@ namespace JeopardyCore
 {
     class JeoModel
     {
+        Random rando = new Random();
         public List<JeoCategory<JeoQuestion>> Categories { get; set; } = new List<JeoCategory<JeoQuestion>>();
 
         public JeoModel()
         {
-            using (StreamReader sr = new StreamReader("jeopardydb.json"))
+            using (StreamReader sr = new StreamReader("jeopardydb - full.json"))
             {
                 string json = sr.ReadToEnd();
                 JObject db = JObject.Parse(json);
@@ -36,12 +37,12 @@ namespace JeopardyCore
                             ++totalCount;
                             string clue = entry["clue"].ToString();
                             string answer = entry["answer"].ToString();
-                            string cat = category.Name.ToString();
+                            string cat = category.Name.ToString().ToUpper();
 
                             //check if the value has a dollar amount, else determine what kind of question it is
                             QType type = QType.Standard;
                             string value = entry["value"].ToString();
-                            if (int.TryParse(value, out int val)) ;
+                            if (int.TryParse(value, out int val));
                             else
                             {
                                 if (value.Contains("Final")) type = QType.Final;
@@ -90,65 +91,53 @@ namespace JeopardyCore
             }
         }
 
-        public JeoCategory<JeoQuestion> RandomCat(QType type, bool hasAVL)
+        //return random category of specified RoundType. Alternate definition allows preference for Audio/Visual/Link quesitons.
+        public JeoCategory<JeoQuestion> RandomCat(RoundType type)
         {
-            JeoCategory < JeoQuestion > retCat = new JeoCategory<JeoQuestion>();
-
-            Random rando = new Random();
+            JeoCategory<JeoQuestion> retCat = new JeoCategory<JeoQuestion>();
             retCat = Categories[rando.Next(Categories.Count)];
 
-            //if method call requests no Audio/Video/Link questions (!hasAVL), find new random category
-            if (!hasAVL)
-            {
-                while (retCat.HasAVL) retCat = Categories[rando.Next(Categories.Count)];
-            }
+            //find new random category until parameters correct round type is found
+            //also verify if category has enough questions to fill a standard round (IsFull property)
+            if (type == RoundType.First) while (!retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+            else if (type == RoundType.Second) while (!retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+            else if (type == RoundType.Final) while (!retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
 
+            return retCat;
+        }
+        public JeoCategory<JeoQuestion> RandomCat(RoundType type, bool hasAVL)
+        {
+            JeoCategory < JeoQuestion > retCat = new JeoCategory<JeoQuestion>();
+            retCat = Categories[rando.Next(Categories.Count)];
+
+            //find new random category until parameters (correct round and/or presence of audio/visual/link questions) are met
+            //also verify if category has enough questions to fill a standard round (IsFull property)
+            if (type == RoundType.First)
+            {
+                if (!hasAVL) while (retCat.HasAVL || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                else while (!retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+            }
+            else if (type == RoundType.Second)
+            {
+                if (!hasAVL) while (retCat.HasAVL || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                else while (!retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+            }
+            else if (type == RoundType.Final)
+            {
+                if (!hasAVL) while (retCat.HasAVL || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                else while (!retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+            }
             return retCat;
         }
 
         //return a category matching the sent string
-        //todo: will not return the very first or very last category. Fix logic to not end loop at those points
+        //returns null if not found
         public JeoCategory<JeoQuestion> CatByName(string nm)
         {
             JeoCategory<JeoQuestion> retCat = new JeoCategory<JeoQuestion>();
             string name = nm.ToUpper();
 
-            string checkName;
-            int checkVal = Categories.Count / 2;
-            bool match = false;
-            bool invalidName = false;
-            int min = 0;
-            int max = Categories.Count;
-            int count = 0;
-            do
-            {
-
-                checkName = Categories[checkVal].CatName.ToUpper();
-
-                if (string.Compare(name, checkName) == 0)
-                {
-                    match = true;
-                    retCat = Categories[checkVal];
-                }
-                else if (string.Compare(name, checkName) < 0)
-                {
-                    max = checkVal;
-                    checkVal = checkVal - ((max-min) / 2);
-                }
-                else if (string.Compare(name, checkName) > 0)
-                {
-                    min = checkVal;
-                    checkVal = checkVal + ((max - min) / 2) +  1;
-                }
-
-                if (checkVal <= 0 || checkVal >= Categories.Count) invalidName = true;
-                ++count;
-                if (count > 50) invalidName = true;
-
-            } while (!match && !invalidName);
-
-            if (invalidName) return null;
-            else return retCat;
+            return Categories.Find(x => x.CatName.Contains(name));
         }
     }
 }
