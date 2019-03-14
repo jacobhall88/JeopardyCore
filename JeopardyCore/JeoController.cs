@@ -7,14 +7,13 @@ namespace JeopardyCore
 {
     class JeoController
     {
-        Random rando = new Random();
-        private JeoModel game = new JeoModel();
+        private JeoModel db = new JeoModel();
+        private Random rando = new Random();
+        private JeoGame game;
 
         public JeoController()
         {
-            string check = game.CatByName("INTERNATdfIONAL SPORTS").CatName;
-            Console.WriteLine(check);
-            Console.Read();
+
         }
     }
 }

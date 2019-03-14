@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 
 namespace JeopardyCore
 {
-    class JeoModel
+    public class JeoModel
     {
         Random rando = new Random();
         public List<JeoCategory<JeoQuestion>> Categories { get; set; } = new List<JeoCategory<JeoQuestion>>();
@@ -91,7 +91,9 @@ namespace JeopardyCore
             }
         }
 
-        //return random category of specified RoundType. Alternate definition allows preference for Audio/Visual/Link quesitons.
+        //return random category of specified RoundType. Alternate definition allows preference for Audio/Visual/Link quesitons
+        //and/or daily doubles
+        //todo: add a definition that respects AVL, but does not check hasDouble. How to do without duplicate method signatures?
         public JeoCategory<JeoQuestion> RandomCat(RoundType type)
         {
             JeoCategory<JeoQuestion> retCat = new JeoCategory<JeoQuestion>();
@@ -105,31 +107,162 @@ namespace JeopardyCore
 
             return retCat;
         }
-        public JeoCategory<JeoQuestion> RandomCat(RoundType type, bool hasAVL)
+        public JeoCategory<JeoQuestion> RandomCat(RoundType type, bool hasDouble)
         {
-            JeoCategory < JeoQuestion > retCat = new JeoCategory<JeoQuestion>();
+            JeoCategory<JeoQuestion> retCat = new JeoCategory<JeoQuestion>();
             retCat = Categories[rando.Next(Categories.Count)];
 
             //find new random category until parameters (correct round and/or presence of audio/visual/link questions) are met
             //also verify if category has enough questions to fill a standard round (IsFull property)
             if (type == RoundType.First)
             {
-                if (!hasAVL) while (retCat.HasAVL || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
-                else while (!retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                if (hasDouble) while (!retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                else while (retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
             }
             else if (type == RoundType.Second)
             {
-                if (!hasAVL) while (retCat.HasAVL || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
-                else while (!retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                if (hasDouble) while (!retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                else while (retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
             }
             else if (type == RoundType.Final)
             {
-                if (!hasAVL) while (retCat.HasAVL || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
-                else while (!retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                if (hasDouble) while (!retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                else while (retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
             }
             return retCat;
         }
+        public JeoCategory<JeoQuestion> RandomCat(RoundType type, bool hasDouble, bool hasAVL)
+        {
+            JeoCategory<JeoQuestion> retCat = new JeoCategory<JeoQuestion>();
+            retCat = Categories[rando.Next(Categories.Count)];
 
+            if (!hasAVL)
+            {
+                //loop the find category logic until a category with an audio/visual/link quesiton is found
+                do
+                {
+                    retCat = Categories[rando.Next(Categories.Count)];
+                    //find new random category until parameters (correct round and/or presence of audio/visual/link questions) are met
+                    //also verify if category has enough questions to fill a standard round (IsFull property)
+                    if (type == RoundType.First)
+                    {
+                        if (hasDouble) while (!retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                        else while (retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                    }
+                    else if (type == RoundType.Second)
+                    {
+                        if (hasDouble) while (!retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                        else while (retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                    }
+                    else if (type == RoundType.Final)
+                    {
+                        if (hasDouble) while (!retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                        else while (retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                    }
+                } while (retCat.HasAVL);
+            }
+            else
+            {
+                //find new random category until parameters (correct round and/or presence of audio/visual/link questions) are met
+                //also verify if category has enough questions to fill a standard round (IsFull property)
+                if (type == RoundType.First)
+                {
+                    if (hasDouble) while (!retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                    else while (retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                }
+                else if (type == RoundType.Second)
+                {
+                    if (hasDouble) while (!retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                    else while (retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                }
+                else if (type == RoundType.Final)
+                {
+                    if (hasDouble) while (!retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                    else while (retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                }
+            }
+            return retCat;
+        }
+        
+        //returns a random Final Jeopardy question
+        public JeoQuestion GetFinal()
+        {
+            bool found = false;
+            JeoQuestion retQ = new JeoQuestion();
+            do
+            {
+                JeoCategory<JeoQuestion> checkCat = Categories[rando.Next(Categories.Count)];
+                if (checkCat.HasFinal)
+                {
+                    found = true;
+                    List<JeoQuestion> finalReg = new List<JeoQuestion>();
+
+                    //register any questions with QType of final, and return a random one
+                    foreach (JeoQuestion q in checkCat)
+                    {
+                        if (q.Type == QType.Final) finalReg.Add(q);
+                    }
+                    retQ = finalReg[rando.Next(finalReg.Count)];
+                }
+            } while (!found);
+
+            return retQ;
+        }
+
+        //returns a populated category. Alternate definition respects Daily Double ratio (1 in first round, 2 in second)
+        //todo: add option that respects AVL. Need to complete RandomCat todo first
+        public List<JeoCategory<JeoQuestion>> RandomRound(RoundType type)
+        {
+            List<JeoCategory<JeoQuestion>> retCat = new List<JeoCategory<JeoQuestion>>();
+
+            for (int i = 0; i < 6; i++)
+            {
+                retCat.Add(RandomCat(type));
+            }
+
+            return retCat;
+        }
+        public List<JeoCategory<JeoQuestion>> RandomRound(RoundType type, bool strictDouble)
+        {
+            List<JeoCategory<JeoQuestion>> retCat = new List<JeoCategory<JeoQuestion>>();
+
+            int firstDouble = rando.Next(6);
+            int secondDouble = rando.Next(6);
+            int thirdDouble = rando.Next(6);
+
+            while (secondDouble == thirdDouble) thirdDouble = rando.Next(6);
+
+            if (strictDouble)
+            {
+                if (type == RoundType.First)
+                {
+                    for (int i = 0; i < 6; i++)
+                    {
+                        if (i == firstDouble) retCat.Add(RandomCat(type, true, false));
+                        else retCat.Add(RandomCat(type, false, false));
+                    }
+                }
+                else if (type == RoundType.Second)
+                {
+                    for (int i = 0; i < 6; i++)
+                    {
+                        if (i == secondDouble || i == thirdDouble) retCat.Add(RandomCat(type, true, false));
+                        else retCat.Add(RandomCat(type, false, false));
+                    }
+                }
+            }
+
+            else
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    retCat.Add(RandomCat(type));
+                }
+            }
+
+            return retCat;
+        }
+       
         //return a category matching the sent string
         //returns null if not found
         public JeoCategory<JeoQuestion> CatByName(string nm)

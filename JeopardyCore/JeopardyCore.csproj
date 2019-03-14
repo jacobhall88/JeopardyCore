@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="JeoCategory.cs" />
     <Compile Include="JeoController.cs" />
+    <Compile Include="JeoGame.cs" />
     <Compile Include="JeoModel.cs" />
     <Compile Include="JeoQuestion.cs" />
     <Compile Include="Program.cs" />

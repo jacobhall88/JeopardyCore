@@ -4,10 +4,10 @@ using System.Text;
 
 namespace JeopardyCore
 {
-    enum QType { Standard, Double, Final, Special }
-    enum RoundType { First, Second, Final, Special }
+    public enum QType { Standard, Double, Final, Special }
+    public enum RoundType { First, Second, Final, Special }
 
-    class JeoQuestion
+    public class JeoQuestion
     {
 
         public string Category { get; set; }
@@ -20,11 +20,15 @@ namespace JeopardyCore
         public bool IsAudio { get; set; } = false;
         public bool HasLink { get; set; } = false;
 
-        //constructor to be called with standard questions
         public JeoQuestion(string cat, string clu, string ans, int val, RoundType roun, QType typ)
         {
             Category = cat; Clue = clu; Answer = ans; Value = val; Round = roun; Type = typ;
         }
 
+        //dummy constructor
+        public JeoQuestion()
+        {
+
+        }
     }
 }

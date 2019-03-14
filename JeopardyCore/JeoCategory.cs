@@ -4,7 +4,7 @@ using System.Text;
 
 namespace JeopardyCore
 {
-    class JeoCategory<T> : List<T>
+    public class JeoCategory<T> : List<T>
     {
         public string CatName { get; set; }
 
@@ -15,7 +15,6 @@ namespace JeopardyCore
         public bool HasDouble { get; set; } = false;
         public bool HasFinal { get; set; } = false;
         public bool HasAVL { get; set; } = false;
-
 
         //used to determine if a category has enough questions to fill a standard round
         public bool IsFull { get; set; } = false;
