@@ -25,5 +25,6 @@ namespace JeopardyCore
             string retString = CatName + ":\n";
             return retString + string.Join(Environment.NewLine, this);
         }
+
     }
 }

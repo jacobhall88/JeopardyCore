@@ -166,24 +166,73 @@ namespace JeopardyCore
             //also verify if category has enough questions to fill a standard round (IsFull property)
             if (type == RoundType.First)
             {
-                if (hasDouble) while (!retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
-                else while (retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                if (hasDouble)
+                {
+                    while (!retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull)
+                    {
+                        retCat = new JeoCategory<JeoQuestion>();
+                        retCat = Categories[rando.Next(Categories.Count)];
+                    }
+                }
+                else
+                {
+                    while (retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull)
+                    {
+                        retCat = new JeoCategory<JeoQuestion>();
+                        retCat = Categories[rando.Next(Categories.Count)];
+                    }
+                }
             }
             else if (type == RoundType.Second)
             {
-                if (hasDouble) while (!retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
-                else while (retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                if (hasDouble)
+                {
+                    while (!retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull)
+                    {
+                        retCat = new JeoCategory<JeoQuestion>();
+                        retCat = Categories[rando.Next(Categories.Count)];
+                    }
+                }
+                else
+                {
+                    while (retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull)
+                    {
+                        retCat = new JeoCategory<JeoQuestion>();
+                        retCat = Categories[rando.Next(Categories.Count)];
+                    }
+                }
             }
             else if (type == RoundType.Final)
             {
-                if (hasDouble) while (!retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
-                else while (retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                if (hasDouble)
+                {
+                    while (!retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull)
+                    {
+                        retCat = new JeoCategory<JeoQuestion>();
+                        retCat = Categories[rando.Next(Categories.Count)];
+                    }
+                }
+                else
+                {
+                    while (retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull)
+                    {
+                        retCat = new JeoCategory<JeoQuestion>();
+                        retCat = Categories[rando.Next(Categories.Count)];
+                    }
+                }
             }
 
             //if there are more than 5 questions in a category, randomly select one each of the correct value
             if (retCat.Count > 5 && type == RoundType.First)
             {
                 JeoCategory<JeoQuestion> newCat = new JeoCategory<JeoQuestion>();
+                newCat.CatName = retCat.CatName;
+                newCat.HasFirst = retCat.HasFirst;
+                newCat.HasDouble = retCat.HasDouble;
+                newCat.HasFinal = retCat.HasFinal;
+                newCat.HasAVL = retCat.HasAVL;
+                newCat.IsFull = retCat.IsFull;
+                newCat.Clear();
 
                 retCat.OrderBy(x => rando.Next()).FirstOrDefault();
                 newCat.Add(retCat.Find(x => x.Value == 200 && x.Round == RoundType.First));
@@ -196,11 +245,18 @@ namespace JeopardyCore
                 retCat.OrderBy(x => rando.Next()).FirstOrDefault();
                 newCat.Add(retCat.Find(x => x.Value == 1000 && x.Round == RoundType.First));
 
-                //if method call has a daily double, randomly replace one of the questions with it
+                //if method call has a daily double, replace any empty spots, else randomly replace one of the questions with it
                 //todo: replace the value that the daily double was originally at. not possible?
                 if (hasDouble)
                 {
-                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+                    bool foundNull = false;
+                    for(int i = 0; i < newCat.Count; i++) 
+                    {
+                        if (newCat[i] == null) newCat[i] = retCat.Find(x => x.Type == QType.Double);
+                        foundNull = true;
+                    }
+                    if (!foundNull) newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+
                 }
 
                 retCat = newCat;
@@ -208,6 +264,13 @@ namespace JeopardyCore
             if (retCat.Count > 5 && type == RoundType.Second)
             {
                 JeoCategory<JeoQuestion> newCat = new JeoCategory<JeoQuestion>();
+                newCat.CatName = retCat.CatName;
+                newCat.HasFirst = retCat.HasFirst;
+                newCat.HasDouble = retCat.HasDouble;
+                newCat.HasFinal = retCat.HasFinal;
+                newCat.HasAVL = retCat.HasAVL;
+                newCat.IsFull = retCat.IsFull;
+                newCat.Clear();
 
                 retCat.OrderBy(x => rando.Next()).FirstOrDefault();
                 newCat.Add(retCat.Find(x => x.Value == 400 && x.Round == RoundType.Second));
@@ -224,7 +287,14 @@ namespace JeopardyCore
                 //todo: replace the value that the daily double was originally at. not possible?
                 if (hasDouble)
                 {
-                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+                    bool foundNull = false;
+                    for (int i = 0; i < newCat.Count; i++)
+                    {
+                        if (newCat[i] == null) newCat[i] = retCat.Find(x => x.Type == QType.Double);
+                        foundNull = true;
+                    }
+                    if (!foundNull) newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+
                 }
 
                 retCat = newCat;
@@ -235,30 +305,74 @@ namespace JeopardyCore
         public JeoCategory<JeoQuestion> RandomCat(RoundType type, bool hasDouble, bool hasAVL)
         {
             JeoCategory<JeoQuestion> retCat = new JeoCategory<JeoQuestion>();
-            retCat = Categories[rando.Next(Categories.Count)];
 
             if (!hasAVL)
             {
                 //loop the find category logic until a category with an audio/visual/link quesiton is found
                 do
                 {
+                    retCat = new JeoCategory<JeoQuestion>();
                     retCat = Categories[rando.Next(Categories.Count)];
                     //find new random category until parameters (correct round and/or presence of audio/visual/link questions) are met
                     //also verify if category has enough questions to fill a standard round (IsFull property)
                     if (type == RoundType.First)
                     {
-                        if (hasDouble) while (!retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
-                        else while (retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                        if (hasDouble)
+                        {
+                            while (!retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull)
+                            {
+                                retCat = new JeoCategory<JeoQuestion>();
+                                retCat = Categories[rando.Next(Categories.Count)];
+                            }
+                        }
+                        else
+                        {
+                            while (retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull)
+                            {
+                                retCat = new JeoCategory<JeoQuestion>();
+                                retCat = Categories[rando.Next(Categories.Count)];
+                            }
+                        }
                     }
                     else if (type == RoundType.Second)
                     {
-                        if (hasDouble) while (!retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
-                        else while (retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                        if (hasDouble)
+                        {
+                            while (!retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull)
+                            {
+                                retCat = new JeoCategory<JeoQuestion>();
+                                retCat = Categories[rando.Next(Categories.Count)];
+                            }
+                        }
+                        else
+                        {
+                            while (retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull)
+                            {
+                                retCat = new JeoCategory<JeoQuestion>();
+                                retCat = Categories[rando.Next(Categories.Count)];
+                            }
+                        }
                     }
                     else if (type == RoundType.Final)
                     {
-                        if (hasDouble) while (!retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
-                        else while (retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                        {
+                            if (hasDouble)
+                            {
+                                while (!retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull)
+                                {
+                                    retCat = new JeoCategory<JeoQuestion>();
+                                    retCat = Categories[rando.Next(Categories.Count)];
+                                }
+                            }
+                            else
+                            {
+                                while (retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull)
+                                {
+                                    retCat = new JeoCategory<JeoQuestion>();
+                                    retCat = Categories[rando.Next(Categories.Count)];
+                                }
+                            }
+                        }
                     }
                 } while (retCat.HasAVL);
             }
@@ -268,18 +382,60 @@ namespace JeopardyCore
                 //also verify if category has enough questions to fill a standard round (IsFull property)
                 if (type == RoundType.First)
                 {
-                    if (hasDouble) while (!retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
-                    else while (retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                    if (hasDouble)
+                    {
+                        while (!retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull)
+                        {
+                            retCat = new JeoCategory<JeoQuestion>();
+                            retCat = Categories[rando.Next(Categories.Count)];
+                        }
+                    }
+                    else
+                    {
+                        while (retCat.HasDouble || !retCat.HasFirst || !retCat.IsFull)
+                        {
+                            retCat = new JeoCategory<JeoQuestion>();
+                            retCat = Categories[rando.Next(Categories.Count)];
+                        }
+                    }
                 }
                 else if (type == RoundType.Second)
                 {
-                    if (hasDouble) while (!retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
-                    else while (retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                    if (hasDouble)
+                    {
+                        while (!retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull)
+                        {
+                            retCat = new JeoCategory<JeoQuestion>();
+                            retCat = Categories[rando.Next(Categories.Count)];
+                        }
+                    }
+                    else
+                    {
+                        while (retCat.HasDouble || !retCat.HasSecond || !retCat.IsFull)
+                        {
+                            retCat = new JeoCategory<JeoQuestion>();
+                            retCat = Categories[rando.Next(Categories.Count)];
+                        }
+                    }
                 }
                 else if (type == RoundType.Final)
                 {
-                    if (hasDouble) while (!retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
-                    else while (retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
+                    if (hasDouble)
+                    {
+                        while (!retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull)
+                        {
+                            retCat = new JeoCategory<JeoQuestion>();
+                            retCat = Categories[rando.Next(Categories.Count)];
+                        }
+                    }
+                    else
+                    {
+                        while (retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull)
+                        {
+                            retCat = new JeoCategory<JeoQuestion>();
+                            retCat = Categories[rando.Next(Categories.Count)];
+                        }
+                    }
                 }
             }
 
@@ -309,7 +465,14 @@ namespace JeopardyCore
                 //todo: replace the value that the daily double was originally at. not possible?
                 if (hasDouble)
                 {
-                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+                    bool foundNull = false;
+                    for (int i = 0; i < newCat.Count; i++)
+                    {
+                        if (newCat[i] == null) newCat[i] = retCat.Find(x => x.Type == QType.Double);
+                        foundNull = true;
+                    }
+                    if (!foundNull) newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+
                 }
 
                 retCat = newCat;
@@ -340,7 +503,14 @@ namespace JeopardyCore
                 //todo: replace the value that the daily double was originally at. not possible?
                 if (hasDouble)
                 {
-                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+                    bool foundNull = false;
+                    for (int i = 0; i < newCat.Count; i++)
+                    {
+                        if (newCat[i] == null) newCat[i] = retCat.Find(x => x.Type == QType.Double);
+                        foundNull = true;
+                    }
+                    if (!foundNull) newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+
                 }
 
                 retCat = newCat;
@@ -435,6 +605,77 @@ namespace JeopardyCore
         {
             string name = nm.ToUpper();
             return Categories.Find(x => x.CatName.Contains(name));
+        }
+
+        public JeoCategory<JeoQuestion> TestCat(RoundType type, bool hasDouble, bool hasAVL)
+        {
+            JeoCategory<JeoQuestion> retCat = new JeoCategory<JeoQuestion>();
+            retCat = CatByName("HOUSES OF THE HOLY");
+
+            if (retCat.Count > 5 && type == RoundType.First)
+            {
+                JeoCategory<JeoQuestion> newCat = new JeoCategory<JeoQuestion>();
+                newCat.CatName = retCat.CatName;
+                newCat.HasFirst = retCat.HasFirst;
+                newCat.HasDouble = retCat.HasDouble;
+                newCat.HasFinal = retCat.HasFinal;
+                newCat.HasAVL = retCat.HasAVL;
+                newCat.IsFull = retCat.IsFull;
+                newCat.Clear();
+
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 200 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 400 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 600 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 800 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 1000 && x.Round == RoundType.First));
+
+                //if method call has a daily double, randomly replace one of the questions with it
+                //todo: replace the value that the daily double was originally at. not possible?
+                if (hasDouble)
+                {
+                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+                }
+
+                retCat = newCat;
+            }
+            if (retCat.Count > 5 && type == RoundType.Second)
+            {
+                JeoCategory<JeoQuestion> newCat = new JeoCategory<JeoQuestion>();
+                newCat.CatName = retCat.CatName;
+                newCat.HasFirst = retCat.HasFirst;
+                newCat.HasDouble = retCat.HasDouble;
+                newCat.HasFinal = retCat.HasFinal;
+                newCat.HasAVL = retCat.HasAVL;
+                newCat.IsFull = retCat.IsFull;
+                newCat.Clear();
+
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 400 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 800 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 1200 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 1600 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 2000 && x.Round == RoundType.Second));
+
+                //if method call has a daily double, randomly replace one of the questions with it
+                //todo: replace the value that the daily double was originally at. not possible?
+                if (hasDouble)
+                {
+                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+                }
+
+                retCat = newCat;
+            }
+
+            return retCat;
         }
     }
 }

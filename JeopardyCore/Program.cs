@@ -6,7 +6,13 @@ namespace JeopardyCore
     {
         static void Main(string[] args)
         {
-            new JeoController();
+            bool exit = false;
+
+            while (!exit)
+            {
+                JeoController game = new JeoController();
+                exit = game.StartGame();
+            }
         }
     }
 }
