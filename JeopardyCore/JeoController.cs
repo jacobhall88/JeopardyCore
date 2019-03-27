@@ -22,6 +22,7 @@ namespace JeopardyCore
         private Button cashLabel;
         private RoundType currentRound;
         private bool exit = false;
+        private bool newGame = false;
         private bool didFinal = true;
 
         public const int VALUESIZE = 45;
@@ -42,13 +43,13 @@ namespace JeopardyCore
             currentRound = RoundType.First;
             mainView.ShowDialog();
 
-            if (!exit)
+            if (!exit && !newGame)
             {
                 mainView = BuildMain(RoundType.Second);
                 currentRound = RoundType.Second;
                 mainView.ShowDialog();
             }
-            if (!exit)
+            if (!exit && !newGame)
             {
                 if (game.Cash > 0)
                 {
@@ -59,7 +60,7 @@ namespace JeopardyCore
                 }
                 else didFinal = false;
             }
-            if (!exit)
+            if (!exit && !newGame)
             {
                 mainView = BuildFinished();
                 mainView.ShowDialog();
@@ -565,13 +566,14 @@ namespace JeopardyCore
         private void ExitHandler(object e, EventArgs args)
         {
             Button btn = (Button)e;
-            //exit = true;
+            exit = true;
             btn.Parent.Parent.Dispose();
         }
         private void NewHandler(object e, EventArgs args)
         {
             Button btn = (Button)e;
             exit = false;
+            newGame = true;
             btn.Parent.Parent.Dispose();
         }
         private void CorrectAns(object e, EventArgs args)

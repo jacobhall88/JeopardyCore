@@ -9,7 +9,7 @@ namespace JeopardyCore
 {
     public class JeoModel
     {
-        const string DBPATH = "jeopardydb - partial.json";
+        const string DBPATH = "jeopardydb.json";
         Random rando = new Random();
         public List<JeoCategory<JeoQuestion>> Categories { get; set; } = new List<JeoCategory<JeoQuestion>>();
 
