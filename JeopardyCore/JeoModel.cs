@@ -2,18 +2,21 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace JeopardyCore
 {
     public class JeoModel
     {
+        const string DBPATH = "jeopardydb - partial.json";
         Random rando = new Random();
         public List<JeoCategory<JeoQuestion>> Categories { get; set; } = new List<JeoCategory<JeoQuestion>>();
 
         public JeoModel()
         {
-            using (StreamReader sr = new StreamReader("jeopardydb - full.json"))
+            bool oldCat = false;
+            using (StreamReader sr = new StreamReader(DBPATH))
             {
                 string json = sr.ReadToEnd();
                 JObject db = JObject.Parse(json);
@@ -22,12 +25,13 @@ namespace JeopardyCore
                 int totalCount = 0;
                 foreach (JProperty category in db.Properties())
                 {
+                    JeoCategory<JeoQuestion> catList = new JeoCategory<JeoQuestion>();
+                    catList.CatName = category.Name.ToString().ToUpper();
+                    oldCat = false;
                     //iterate through each question within each category
                     foreach (JToken question in category)
                     {
-                        JeoCategory<JeoQuestion> catList = new JeoCategory<JeoQuestion>();
-                        catList.CatName = category.Name;
-
+                        
                         //keeps track of how many questions in the category will fit into a standard round
                         int qCount = 0;
 
@@ -80,6 +84,16 @@ namespace JeopardyCore
                             if (addQ.Type == QType.Final) catList.HasFinal = true;
                             if (addQ.Type == QType.Standard || addQ.Type == QType.Double) ++qCount;
 
+                            //jeopardy questions used to be worth half as much; for consistency, update older values to newer standard
+                            if ((addQ.Round == RoundType.First) && ((addQ.Value % 200F) != 0) && (addQ.Value > 0))
+                            {
+                                oldCat = true;
+                            }
+                            if ((addQ.Round == RoundType.Second) && ((addQ.Value % 400F) != 0) && (addQ.Value > 0))
+                            {
+                                oldCat = true;
+                            }
+                            if (oldCat) addQ.Value = addQ.Value * 2;
                             catList.Add(addQ);
                         }
 
@@ -105,6 +119,42 @@ namespace JeopardyCore
             else if (type == RoundType.Second) while (!retCat.HasSecond || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
             else if (type == RoundType.Final) while (!retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
 
+            //if there are more than 5 questions in a category, randomly select one each of the correct value
+            if (retCat.Count > 5 && type == RoundType.First)
+            {
+                JeoCategory<JeoQuestion> newCat = new JeoCategory<JeoQuestion>();
+
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 200 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 400 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 600 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 800 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 1000 && x.Round == RoundType.First));
+
+                retCat = newCat;
+            }
+            if (retCat.Count > 5 && type == RoundType.Second)
+            {
+                JeoCategory<JeoQuestion> newCat = new JeoCategory<JeoQuestion>();
+
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 400 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 800 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 1200 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 1600 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 2000 && x.Round == RoundType.Second));
+
+                retCat = newCat;
+            }
+
             return retCat;
         }
         public JeoCategory<JeoQuestion> RandomCat(RoundType type, bool hasDouble)
@@ -129,6 +179,57 @@ namespace JeopardyCore
                 if (hasDouble) while (!retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
                 else while (retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
             }
+
+            //if there are more than 5 questions in a category, randomly select one each of the correct value
+            if (retCat.Count > 5 && type == RoundType.First)
+            {
+                JeoCategory<JeoQuestion> newCat = new JeoCategory<JeoQuestion>();
+
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 200 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 400 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 600 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 800 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 1000 && x.Round == RoundType.First));
+
+                //if method call has a daily double, randomly replace one of the questions with it
+                //todo: replace the value that the daily double was originally at. not possible?
+                if (hasDouble)
+                {
+                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+                }
+
+                retCat = newCat;
+            }
+            if (retCat.Count > 5 && type == RoundType.Second)
+            {
+                JeoCategory<JeoQuestion> newCat = new JeoCategory<JeoQuestion>();
+
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 400 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 800 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 1200 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 1600 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 2000 && x.Round == RoundType.Second));
+
+                //if method call has a daily double, randomly replace one of the questions with it
+                //todo: replace the value that the daily double was originally at. not possible?
+                if (hasDouble)
+                {
+                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+                }
+
+                retCat = newCat;
+            }
+
             return retCat;
         }
         public JeoCategory<JeoQuestion> RandomCat(RoundType type, bool hasDouble, bool hasAVL)
@@ -181,6 +282,70 @@ namespace JeopardyCore
                     else while (retCat.HasDouble || !retCat.HasFinal || !retCat.IsFull) retCat = Categories[rando.Next(Categories.Count)];
                 }
             }
+
+            if (retCat.Count > 5 && type == RoundType.First)
+            {
+                JeoCategory<JeoQuestion> newCat = new JeoCategory<JeoQuestion>();
+                newCat.CatName = retCat.CatName;
+                newCat.HasFirst = retCat.HasFirst;
+                newCat.HasDouble = retCat.HasDouble;
+                newCat.HasFinal = retCat.HasFinal;
+                newCat.HasAVL = retCat.HasAVL;
+                newCat.IsFull = retCat.IsFull;
+                newCat.Clear();
+
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 200 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 400 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 600 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 800 && x.Round == RoundType.First));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 1000 && x.Round == RoundType.First));
+
+                //if method call has a daily double, randomly replace one of the questions with it
+                //todo: replace the value that the daily double was originally at. not possible?
+                if (hasDouble)
+                {
+                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+                }
+
+                retCat = newCat;
+            }
+            if (retCat.Count > 5 && type == RoundType.Second)
+            {
+                JeoCategory<JeoQuestion> newCat = new JeoCategory<JeoQuestion>();
+                newCat.CatName = retCat.CatName;
+                newCat.HasFirst = retCat.HasFirst;
+                newCat.HasDouble = retCat.HasDouble;
+                newCat.HasFinal = retCat.HasFinal;
+                newCat.HasAVL = retCat.HasAVL;
+                newCat.IsFull = retCat.IsFull;
+                newCat.Clear();
+
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 400 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 800 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 1200 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 1600 && x.Round == RoundType.Second));
+                retCat.OrderBy(x => rando.Next()).FirstOrDefault();
+                newCat.Add(retCat.Find(x => x.Value == 2000 && x.Round == RoundType.Second));
+
+                //if method call has a daily double, randomly replace one of the questions with it
+                //todo: replace the value that the daily double was originally at. not possible?
+                if (hasDouble)
+                {
+                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
+                }
+
+                retCat = newCat;
+            }
+
             return retCat;
         }
         
@@ -210,10 +375,11 @@ namespace JeopardyCore
         }
 
         //returns a populated category. Alternate definition respects Daily Double ratio (1 in first round, 2 in second)
+        //uses JeoCategory instead of List for the top level container to utilize the overriden ToString() method
         //todo: add option that respects AVL. Need to complete RandomCat todo first
-        public List<JeoCategory<JeoQuestion>> RandomRound(RoundType type)
+        public JeoCategory<JeoCategory<JeoQuestion>> RandomRound(RoundType type)
         {
-            List<JeoCategory<JeoQuestion>> retCat = new List<JeoCategory<JeoQuestion>>();
+            JeoCategory<JeoCategory<JeoQuestion>> retCat = new JeoCategory<JeoCategory<JeoQuestion>>();
 
             for (int i = 0; i < 6; i++)
             {
@@ -222,9 +388,9 @@ namespace JeopardyCore
 
             return retCat;
         }
-        public List<JeoCategory<JeoQuestion>> RandomRound(RoundType type, bool strictDouble)
+        public JeoCategory<JeoCategory<JeoQuestion>> RandomRound(RoundType type, bool strictDouble)
         {
-            List<JeoCategory<JeoQuestion>> retCat = new List<JeoCategory<JeoQuestion>>();
+            JeoCategory<JeoCategory<JeoQuestion>> retCat = new JeoCategory<JeoCategory<JeoQuestion>>();
 
             int firstDouble = rando.Next(6);
             int secondDouble = rando.Next(6);
@@ -267,9 +433,7 @@ namespace JeopardyCore
         //returns null if not found
         public JeoCategory<JeoQuestion> CatByName(string nm)
         {
-            JeoCategory<JeoQuestion> retCat = new JeoCategory<JeoQuestion>();
             string name = nm.ToUpper();
-
             return Categories.Find(x => x.CatName.Contains(name));
         }
     }

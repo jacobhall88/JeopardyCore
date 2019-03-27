@@ -25,6 +25,26 @@ namespace JeopardyCore
             Category = cat; Clue = clu; Answer = ans; Value = val; Round = roun; Type = typ;
         }
 
+        override public string ToString()
+        {
+            string val = Value.ToString();
+            string typ = Type.ToString();
+            string ron = Round.ToString();
+            string vid = IsVideo.ToString();
+            string aud = IsAudio.ToString();
+            string lin = HasLink.ToString();
+            string retString = "Clue: " + Clue + "\n" +
+                " Answer: " + Answer + "\n" +
+                " Category " + Category + "\n" +
+                " Round: " + ron + "\n" +
+                " Value: " + val + "\n" +
+                " Type: " + typ + "\n" +
+                " Has Video: " + vid + "\n" +
+                " Has Audio: " + aud + "\n" +
+                " Has Link: " + lin + "\n";
+            return retString;
+        }
+
         //dummy constructor
         public JeoQuestion()
         {
