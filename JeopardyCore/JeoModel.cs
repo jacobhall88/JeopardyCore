@@ -9,7 +9,7 @@ namespace JeopardyCore
 {
     public class JeoModel
     {
-        const string DBPATH = "jeopardydb.json";
+        const string DBPATH = "jeopardydb - partial.json";
         Random rando = new Random();
         public List<JeoCategory<JeoQuestion>> Categories { get; set; } = new List<JeoCategory<JeoQuestion>>();
 
@@ -249,14 +249,7 @@ namespace JeopardyCore
                 //todo: replace the value that the daily double was originally at. not possible?
                 if (hasDouble)
                 {
-                    bool foundNull = false;
-                    for(int i = 0; i < newCat.Count; i++) 
-                    {
-                        if (newCat[i] == null) newCat[i] = retCat.Find(x => x.Type == QType.Double);
-                        foundNull = true;
-                    }
-                    if (!foundNull) newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
-
+                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
                 }
 
                 retCat = newCat;
@@ -287,14 +280,7 @@ namespace JeopardyCore
                 //todo: replace the value that the daily double was originally at. not possible?
                 if (hasDouble)
                 {
-                    bool foundNull = false;
-                    for (int i = 0; i < newCat.Count; i++)
-                    {
-                        if (newCat[i] == null) newCat[i] = retCat.Find(x => x.Type == QType.Double);
-                        foundNull = true;
-                    }
-                    if (!foundNull) newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
-
+                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
                 }
 
                 retCat = newCat;
@@ -465,14 +451,7 @@ namespace JeopardyCore
                 //todo: replace the value that the daily double was originally at. not possible?
                 if (hasDouble)
                 {
-                    bool foundNull = false;
-                    for (int i = 0; i < newCat.Count; i++)
-                    {
-                        if (newCat[i] == null) newCat[i] = retCat.Find(x => x.Type == QType.Double);
-                        foundNull = true;
-                    }
-                    if (!foundNull) newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
-
+                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
                 }
 
                 retCat = newCat;
@@ -503,14 +482,7 @@ namespace JeopardyCore
                 //todo: replace the value that the daily double was originally at. not possible?
                 if (hasDouble)
                 {
-                    bool foundNull = false;
-                    for (int i = 0; i < newCat.Count; i++)
-                    {
-                        if (newCat[i] == null) newCat[i] = retCat.Find(x => x.Type == QType.Double);
-                        foundNull = true;
-                    }
-                    if (!foundNull) newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
-
+                    newCat[rando.Next(4)] = retCat.Find(x => x.Type == QType.Double);
                 }
 
                 retCat = newCat;

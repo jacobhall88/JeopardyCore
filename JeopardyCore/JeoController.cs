@@ -251,6 +251,8 @@ namespace JeopardyCore
             viewPanel.Controls.Add(input);
 
             retForm.Controls.Add(viewPanel);
+            mainView.AcceptButton = sub;
+            mainView.ActiveControl = input;
 
             return retForm;
         }
@@ -390,6 +392,7 @@ namespace JeopardyCore
                 sub.Text = "Submit";
                 sub.Click += new EventHandler(QSubmited);
                 parent.Controls.Add(sub);
+                view.AcceptButton = sub;
 
                 //create and add input text field
                 input = new TextBox();
@@ -402,6 +405,7 @@ namespace JeopardyCore
                 parent.Controls.Add(input);
 
                 view.Controls.Add(parent);
+                view.ActiveControl = input;
                 view.ShowDialog();
             }
             else if (currentQ.Type == QType.Double)
@@ -466,6 +470,7 @@ namespace JeopardyCore
                 sub.Text = "Submit";
                 sub.Click += new EventHandler(QSubmited);
                 parent.Controls.Add(sub);
+                view.AcceptButton = sub;
 
                 //create and add input text field
                 input = new TextBox();
@@ -478,6 +483,7 @@ namespace JeopardyCore
                 parent.Controls.Add(input);
 
                 view.Controls.Add(parent);
+                view.ActiveControl = bid;
                 view.ShowDialog();
             }
         }
@@ -644,6 +650,7 @@ namespace JeopardyCore
             btn.Dock = DockStyle.Fill;
             btn.ForeColor = Color.Yellow;
             btn.BackColor = Color.Blue;
+            btn.UseMnemonic = false;
             btn.Font = new Font("Arial", GENERALSIZE, FontStyle.Bold);
         }
         private void FormatButton(ref JeoButton btn)
@@ -651,6 +658,7 @@ namespace JeopardyCore
             btn.Dock = DockStyle.Fill;
             btn.ForeColor = Color.Yellow;
             btn.BackColor = Color.Blue;
+            btn.UseMnemonic = false;
             btn.Font = new Font("Arial", GENERALSIZE, FontStyle.Bold);
         }
 
